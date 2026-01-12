@@ -1,0 +1,73 @@
+using UnityEngine;
+
+public class CartObstacleCheck : MonoBehaviour
+{
+    public CartVisualLean visualLean;
+    public Transform cameraAnchor;
+
+    public float requiredTilt = 8f;
+    public float viewAngle = 25f;
+
+    private bool evaluated = false;
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (evaluated) return;
+
+        OptionVisual option = other.GetComponent<OptionVisual>();
+        if (option == null) return;
+
+        // 🔹 VISUAL CHECK
+        Vector3 dirToOption = other.transform.position - cameraAnchor.position;
+        float angle = Vector3.Angle(cameraAnchor.forward, dirToOption);
+
+        if (angle > viewAngle)
+            return; // not visually seen
+
+        evaluated = true;
+
+        float tilt = visualLean.CurrentLean;
+
+        bool tiltLeft = tilt < -requiredTilt;
+        bool tiltRight = tilt > requiredTilt;
+        bool center = Mathf.Abs(tilt) <= requiredTilt;
+
+        // 🔹 CENTER → visual answer
+        if (center)
+        {
+            if (option.isCorrect)
+                option.SetCorrect();
+            else
+                option.SetWrong();
+            return;
+        }
+
+        // 🔹 LEFT
+        if (tiltLeft && option.side == OptionVisual.OptionSide.Left)
+        {
+            if (option.isCorrect)
+                option.SetCorrect();
+            else
+                option.SetWrong();
+            return;
+        }
+
+        // 🔹 RIGHT
+        if (tiltRight && option.side == OptionVisual.OptionSide.Right)
+        {
+            if (option.isCorrect)
+                option.SetCorrect();
+            else
+                option.SetWrong();
+            return;
+        }
+
+        // 🔹 Wrong visual choice
+        option.SetWrong();
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        evaluated = false;
+    }
+}
