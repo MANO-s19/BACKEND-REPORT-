@@ -1,0 +1,29 @@
+using UnityEngine;
+
+public class CartVisualLean : MonoBehaviour
+{
+    public float maxLeanAngle = 20f;
+    public float leanSpeed = 6f;
+
+    float currentLean;
+
+    void Update()
+    {
+        float input = Input.GetAxis("Horizontal"); // A / D
+
+        float targetLean = -input * maxLeanAngle;
+
+        currentLean = Mathf.Lerp(
+            currentLean,
+            targetLean,
+            Time.deltaTime * leanSpeed
+        );
+
+        // VISUAL TILT ONLY (Z axis)
+        transform.localRotation = Quaternion.Euler(0f, 0f, currentLean);
+
+        Debug.Log("Lean Input: " + input);
+    }
+
+    public float CurrentLean => currentLean;
+}
