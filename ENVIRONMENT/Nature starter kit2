@@ -1,0 +1,98 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class EnvironmentManager : MonoBehaviour
+{
+    [Header("Nature Objects")]
+    public GameObject[] trees;
+    public GameObject[] rocks;
+    public GameObject[] grassPatches;
+    public Terrain terrain;
+
+    [Header("Environment Settings")]
+    public int treeCount = 200;
+    public int rockCount = 100;
+    public int grassCount = 300;
+
+    private List<GameObject> spawnedObjects = new List<GameObject>();
+
+    void Start()
+    {
+        InitializeEnvironment();
+    }
+
+    void InitializeEnvironment()
+    {
+        ClearEnvironment();
+        SpawnTrees();
+        SpawnRocks();
+        SpawnGrass();
+        ApplyLightingSettings();
+    }
+
+    void SpawnTrees()
+    {
+        for (int i = 0; i < treeCount; i++)
+        {
+            Vector3 pos = GetRandomTerrainPosition();
+            GameObject tree = Instantiate(
+                trees[Random.Range(0, trees.Length)],
+                pos,
+                Quaternion.identity
+            );
+            spawnedObjects.Add(tree);
+        }
+    }
+
+    void SpawnRocks()
+    {
+        for (int i = 0; i < rockCount; i++)
+        {
+            Vector3 pos = GetRandomTerrainPosition();
+            GameObject rock = Instantiate(
+                rocks[Random.Range(0, rocks.Length)],
+                pos,
+                Quaternion.identity
+            );
+            spawnedObjects.Add(rock);
+        }
+    }
+
+    void SpawnGrass()
+    {
+        for (int i = 0; i < grassCount; i++)
+        {
+            Vector3 pos = GetRandomTerrainPosition();
+            GameObject grass = Instantiate(
+                grassPatches[Random.Range(0, grassPatches.Length)],
+                pos,
+                Quaternion.identity
+            );
+            spawnedObjects.Add(grass);
+        }
+    }
+
+    Vector3 GetRandomTerrainPosition()
+    {
+        float x = Random.Range(0, terrain.terrainData.size.x);
+        float z = Random.Range(0, terrain.terrainData.size.z);
+        float y = terrain.SampleHeight(new Vector3(x, 0, z));
+        return new Vector3(x, y, z);
+    }
+
+    void ApplyLightingSettings()
+    {
+        RenderSettings.ambientIntensity = 1.2f;
+        RenderSettings.fog = true;
+        RenderSettings.fogDensity = 0.01f;
+    }
+
+    void ClearEnvironment()
+    {
+        foreach (GameObject obj in spawnedObjects)
+        {
+            Destroy(obj);
+        }
+        spawnedObjects.Clear();
+    }
+}
