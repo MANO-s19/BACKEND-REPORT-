@@ -1,0 +1,48 @@
+using UnityEngine;
+
+public class CartFollowWaypoints : MonoBehaviour
+{
+    [Header("Waypoints")]
+    public Transform waypointParent;
+    public float speed = 5f;
+    public float rotateSpeed = 5f;
+    public float reachDistance = 0.2f;
+
+    private int index = 0;
+
+    void Update()
+    {
+        if (waypointParent == null || waypointParent.childCount == 0)
+            return;
+
+        if (index >= waypointParent.childCount)
+            return;
+
+        Transform target = waypointParent.GetChild(index);
+
+        // Move
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target.position,
+            speed * Time.deltaTime
+        );
+
+        // Rotate smoothly
+        Vector3 dir = target.position - transform.position;
+        if (dir != Vector3.zero)
+        {
+            Quaternion lookRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                lookRot,
+                rotateSpeed * Time.deltaTime
+            );
+        }
+
+        // Next waypoint
+        if (Vector3.Distance(transform.position, target.position) < reachDistance)
+        {
+            index++;
+        }
+    }
+}
