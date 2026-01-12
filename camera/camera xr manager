@@ -1,0 +1,40 @@
+using UnityEngine;
+using UnityEngine.XR;
+
+public class CameraXRManager : MonoBehaviour
+{
+    public Camera vrCamera;
+    public Transform cart;
+    public Vector3 offset;
+
+    void Start()
+    {
+        EnableXR();
+    }
+
+    void LateUpdate()
+    {
+        FollowCart();
+    }
+
+    void FollowCart()
+    {
+        vrCamera.transform.position = cart.position + offset;
+        vrCamera.transform.rotation = cart.rotation;
+    }
+
+    void EnableXR()
+    {
+        XRSettings.enabled = true;
+    }
+
+    public void DisableXR()
+    {
+        XRSettings.enabled = false;
+    }
+
+    public void RecenterView()
+    {
+        InputTracking.Recenter();
+    }
+}
