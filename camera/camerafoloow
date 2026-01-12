@@ -1,0 +1,19 @@
+using UnityEngine;
+
+public class CameraAnchorFollow : MonoBehaviour
+{
+    public Transform target;
+    public float positionSmooth = 10f;
+
+    void LateUpdate()
+    {
+        if (!target) return;
+
+        transform.position = Vector3.Lerp(
+            transform.position,
+            target.position,
+            Time.deltaTime * positionSmooth
+        );
+    }
+}
+camera anchor
