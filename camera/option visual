@@ -1,0 +1,64 @@
+using UnityEngine;
+
+public class VisualOptionDetector : MonoBehaviour
+{
+    public float viewAngle = 25f;
+    public float viewDistance = 10f;
+
+    public CartVisualLean visualLean;
+    public float requiredTilt = 8f;
+
+    void Update()
+    {
+        OptionVisual bestOption = null;
+        float bestZ = float.MaxValue;
+
+        foreach (OptionVisual option in FindObjectsOfType<OptionVisual>())
+        {
+            if (option.IsLocked) continue;
+
+            Vector3 dir = option.transform.position - transform.position;
+
+            if (dir.magnitude > viewDistance) continue;
+
+            float angle = Vector3.Angle(transform.forward, dir);
+            if (angle > viewAngle) continue;
+
+            if (dir.z < bestZ)
+            {
+                bestZ = dir.z;
+                bestOption = option;
+            }
+        }
+
+        if (bestOption == null) return;
+
+        float tilt = visualLean.CurrentLean;
+
+        bool center = Mathf.Abs(tilt) <= requiredTilt;
+        bool leftTilt = tilt < -requiredTilt;
+        bool rightTilt = tilt > requiredTilt;
+
+        // CENTER → answer visually
+        if (center)
+        {
+            bestOption.Evaluate();
+            return;
+        }
+
+        // LEFT TILT → RIGHT option (visual reality)
+        if (leftTilt && bestOption.side == OptionVisual.OptionSide.Right)
+        {
+            bestOption.Evaluate();
+            return;
+        }
+
+        // RIGHT TILT → LEFT option (visual reality)
+        if (rightTilt && bestOption.side == OptionVisual.OptionSide.Left)
+        {
+            bestOption.Evaluate();
+            return;
+        }
+
+    }
+}
