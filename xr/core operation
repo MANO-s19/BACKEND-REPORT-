@@ -1,0 +1,46 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class CoreBackendSystem : MonoBehaviour
+{
+    private Dictionary<string, float> systemMetrics = new Dictionary<string, float>();
+    private List<string> eventLogs = new List<string>();
+
+    void Start()
+    {
+        InitializeBackend();
+    }
+
+    void InitializeBackend()
+    {
+        systemMetrics["RideTime"] = 0f;
+        systemMetrics["Speed"] = 0f;
+        LogEvent("Backend Initialized");
+    }
+
+    void Update()
+    {
+        UpdateMetrics();
+    }
+
+    void UpdateMetrics()
+    {
+        systemMetrics["RideTime"] += Time.deltaTime;
+    }
+
+    public void LogEvent(string message)
+    {
+        eventLogs.Add(Time.time + ": " + message);
+        Debug.Log(message);
+    }
+
+    public string[] GetLogs()
+    {
+        return eventLogs.ToArray();
+    }
+
+    public float GetMetric(string key)
+    {
+        return systemMetrics.ContainsKey(key) ? systemMetrics[key] : 0f;
+    }
+}
