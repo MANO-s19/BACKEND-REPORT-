@@ -1,0 +1,67 @@
+using UnityEngine;
+
+public class CartController : MonoBehaviour
+{
+    public TrackAndWaypointSystem track;
+    public float speed = 5f;
+    public float maxSpeed = 15f;
+    public float acceleration = 2f;
+
+    private int currentWaypoint;
+    private bool isMoving;
+
+    void Start()
+    {
+        currentWaypoint = 0;
+        isMoving = false;
+    }
+
+    void Update()
+    {
+        if (isMoving)
+        {
+            MoveCart();
+        }
+    }
+
+    void MoveCart()
+    {
+        Transform target = track.GetWaypoint(currentWaypoint);
+        if (target == null) return;
+
+        speed = Mathf.Min(speed + acceleration * Time.deltaTime, maxSpeed);
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target.position,
+            speed * Time.deltaTime
+        );
+
+        transform.LookAt(target);
+
+        if (Vector3.Distance(transform.position, target.position) < 0.2f)
+        {
+            currentWaypoint++;
+            if (currentWaypoint >= track.GetWaypointCount())
+            {
+                StopCart();
+            }
+        }
+    }
+
+    public void StartCart()
+    {
+        isMoving = true;
+    }
+
+    public void StopCart()
+    {
+        isMoving = false;
+        speed = 0f;
+    }
+
+    public void ResetCart()
+    {
+        currentWaypoint = 0;
+        transform.position = track.GetWaypoint(0).position;
+    }
+}
