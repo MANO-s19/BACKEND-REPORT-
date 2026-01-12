@@ -1,0 +1,62 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class TrackAndWaypointSystem : MonoBehaviour
+{
+    public Transform trackParent;
+    public float waypointSpacing = 2f;
+
+    private List<Transform> waypoints = new List<Transform>();
+
+    void Start()
+    {
+        GenerateWaypoints();
+    }
+
+    void GenerateWaypoints()
+    {
+        waypoints.Clear();
+
+        for (int i = 0; i < trackParent.childCount; i++)
+        {
+            Transform segment = trackParent.GetChild(i);
+            CreateWaypointsOnSegment(segment);
+        }
+    }
+
+    void CreateWaypointsOnSegment(Transform segment)
+    {
+        float length = segment.localScale.z;
+        int count = Mathf.RoundToInt(length / waypointSpacing);
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 pos = segment.position + segment.forward * i * waypointSpacing;
+            GameObject wp = new GameObject("Waypoint_" + waypoints.Count);
+            wp.transform.position = pos;
+            wp.transform.parent = transform;
+            waypoints.Add(wp.transform);
+        }
+    }
+
+    public Transform GetWaypoint(int index)
+    {
+        if (index < 0 || index >= waypoints.Count) return null;
+        return waypoints[index];
+    }
+
+    public int GetWaypointCount()
+    {
+        return waypoints.Count;
+    }
+
+    public void ResetWaypoints()
+    {
+        foreach (Transform wp in waypoints)
+        {
+            Destroy(wp.gameObject);
+        }
+        waypoints.Clear();
+        GenerateWaypoints();
+    }
+}
