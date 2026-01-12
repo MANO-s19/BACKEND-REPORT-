@@ -1,0 +1,58 @@
+using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+public class PhysicsCartMove : MonoBehaviour
+{
+    [Header("Speed Control")]
+    public float maxSpeed = 8f;
+    public float pushForce = 20f;
+
+    [Header("Stop")]
+    public Transform endPoint;
+    public float stopDistance = 1.2f;
+
+    Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+
+        rb.useGravity = true;
+        rb.isKinematic = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+        // Lock all rotations (visual handles tilt)
+        rb.constraints =
+            RigidbodyConstraints.FreezeRotationX |
+            RigidbodyConstraints.FreezeRotationY |
+            RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    void FixedUpdate()
+    {
+        // -------- STOP AT END --------
+        if (endPoint != null)
+        {
+            float dist = Vector3.Distance(rb.position, endPoint.position);
+            if (dist <= stopDistance)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                enabled = false;
+                return;
+            }
+        }
+
+        if (rb.isKinematic) return;
+
+        // -------- MOVE FORWARD --------
+        Vector3 forward = transform.forward;
+
+        if (rb.velocity.magnitude < maxSpeed)
+        {
+            rb.AddForce(forward * pushForce, ForceMode.Acceleration);
+        }
+    }
+}
